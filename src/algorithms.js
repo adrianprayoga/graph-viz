@@ -7,22 +7,15 @@ export const djikstra = (
   nodes,
   startId,
   targetId,
-  distanceMap,
-  pathMap,
-  marked,
-  pq,
-  steps
+  distanceMap = { [startId]: 0 },
+  pathMap = { [startId]: undefined },
+  marked = new Set(),
+  pq = new Heapify(NUM_COL * NUM_ROW),
+  steps = MAX_DIST
 ) => {
-  // let distanceMap = { [startId]: 0 };
-  // let pathMap = { [startId]: undefined };
-  // let marked = new Set();
-  // let pq = new Heapify(NUM_COL * NUM_ROW);
 
   let count = 0;
   let copyNodes = { ...nodes };
-
-  marked.add(startId);
-  pq.push(startId, 0);
 
   while (pq.size !== 0 && count < steps) {
     const nodeIndex = pq.pop();
@@ -60,11 +53,14 @@ export const djikstra = (
   }
 
   if (count === steps) {
-    console.log(count, steps, "in progress");
-    return { solved: false, inProgress: true, solution: copyNodes };
+    return {
+      solved: false,
+      inProgress: true,
+      solution: copyNodes,
+      interimObj: { distanceMap, pathMap, marked, pq },
+    };
   }
 
-  console.log(count, steps, "failed");
   return { solved: false, inProgress: false, solution: copyNodes };
 };
 

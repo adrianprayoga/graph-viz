@@ -10,19 +10,21 @@ import {
   SOLUTION,
   START,
   TARGET,
+  VISITED,
   WALL,
+  VW,
 } from "./constants";
 import { djikstra } from "./algorithms";
 
 const NUM_BOX = NUM_COL * NUM_ROW;
-const START_NODE = 255;
-const TARGET_NODE = 790;
+const START_NODE = Math.floor((NUM_COL * NUM_ROW) / 2) + 3;
+const TARGET_NODE = Math.floor((NUM_COL * NUM_ROW) / 2 + 1) - 5;
 
 const MazeRoot = styled.div`
   display: grid;
-  grid-template-columns: repeat(50, 1fr);
+  grid-template-columns: repeat(${NUM_COL}, 1fr);
   gap: 0 0;
-  width: 1500px;
+  width: ${VW - 100}px;
 `;
 
 const App = (props) => {
@@ -30,6 +32,8 @@ const App = (props) => {
   const [startNode, setStartNode] = useState(START_NODE);
   const [targetNode, setTargetNode] = useState(TARGET_NODE);
   const [isSolving, setIsSolving] = useState(false);
+  const [count, setCount] = useState(0);
+  const [intervalId, setIntervalId] = useState(0);
   const [onDrag, setOnDrag] = useState(false);
 
   const boxList = useMemo(() => {
@@ -60,8 +64,17 @@ const App = (props) => {
     let marked = new Set();
     let pq = new Heapify(NUM_COL * NUM_ROW);
 
+    marked.add(startNode);
+    pq.push(startNode, 0);
+
+    if (intervalId) {
+      clearInterval(intervalId);
+      setIntervalId(0);
+      return;
+    }
+
     let updatedNodeList = Object.keys(nodeList).reduce((accum, key) => {
-      if (nodeList[key].type === SOLUTION) {
+      if (nodeList[key].type === SOLUTION || nodeList[key].type === VISITED) {
         accum[key] = {
           ...nodeList[key],
           type: EMPTY,
@@ -73,38 +86,42 @@ const App = (props) => {
       return accum;
     }, {});
 
-    const { solved, inProgress, solution } = djikstra(
-      updatedNodeList,
-      startNode,
-      targetNode,
-      distanceMap,
-      pathMap,
-      marked,
-      pq,
-      200000
-    );
+    const newIntervalId = setInterval(() => {
+      const {
+        solved: rSolved,
+        inProgress: rInProgress,
+        solution,
+        interimObj,
+      } = djikstra(
+        updatedNodeList,
+        startNode,
+        targetNode,
+        distanceMap,
+        pathMap,
+        marked,
+        pq,
+        10
+      );
 
-    (solved || inProgress) && setNodeList(solution);
+      if (rInProgress) {
+        updatedNodeList = { ...solution };
+        distanceMap = interimObj.distanceMap;
+        pathMap = interimObj.pathMap;
+        marked = interimObj.marked;
+        pq = interimObj.pq;
+      }
+
+      (rSolved || rInProgress) && setNodeList(solution);
+
+      if (rSolved === true || (rSolved === false && rInProgress === false)) {
+        clearInterval(newIntervalId);
+        setIntervalId(0);
+        return;
+      }
+    }, 10);
+
+    setIntervalId(newIntervalId);
   };
-
-  useEffect(() => {
-    const handle = setInterval(() => {
-      // Note useing the callback function, so `arr` isn't stale
-      // in this callback
-      // setArr(a => {
-      //     if (a.length) {
-      //         // Update the array, dropping the first entry
-      //         return a.slice(1);
-      //     }
-      //     // No more entries, stop the timer
-      //     clearInterval(handle);
-      //     return a;
-      // });
-
-      setIsSolving(false);
-    }, 500);
-    return () => clearInterval(handle);
-  }, [isSolving]);
 
   const handleClick = (i) => (e) => {
     let nextType = EMPTY;
@@ -151,6 +168,12 @@ const App = (props) => {
       </MazeRoot>
     </>
   );
+};
+
+const getIdsOfNonEmptyNodes = (nodes) => {
+  return Object.keys(nodes)
+    .filter((key) => nodes[key].type !== EMPTY)
+    .map((key) => ({ key, type: nodes[key].type }));
 };
 
 export default App;
