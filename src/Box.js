@@ -1,8 +1,17 @@
-import React, { useState } from "react";
+import React from "react";
 import PlayCircleFilledIcon from "@material-ui/icons/PlayCircleFilled";
 import TrackChangesIcon from "@material-ui/icons/TrackChanges";
+import TrafficIcon from "@material-ui/icons/Traffic";
 import styled, { css } from "styled-components";
-import { SOLUTION, START, TARGET, VISITED, WALL } from "./constants";
+import {
+  SOLUTION,
+  START,
+  TARGET,
+  VISITED_PREV,
+  VISITED_CURR,
+  WALL,
+  TRAFFIC,
+} from "./constants";
 
 const DivBox = styled.div`
   background: transparent;
@@ -15,31 +24,65 @@ const DivBox = styled.div`
   justify-content: center;
   font-size: 30px;
   color: darkgray;
+
   ${({ type }) => {
-    if (type === WALL) {
+    if (type === TRAFFIC) {
+      return css`
+        color: lightgray;
+      `;
+    } else if (type === WALL) {
       return css`
         background: black;
       `;
-    } else if (type === VISITED) {
+    }
+  }};
+
+  ${({ state }) => {
+    if (state === VISITED_PREV) {
       return css`
         background: lightsteelblue;
       `;
-    } else if (type === SOLUTION) {
+    } else if (state === VISITED_CURR) {
       return css`
-        background: orange;
+        background: steelblue;
+      `;
+    } else if (state === SOLUTION) {
+      return css`
+        background: lightseagreen;
+        color: black;
       `;
     }
   }};
 `;
 
-const Box = ({ i, type, handleClick }) => {
+const Box = ({ i, type, state, handleClick, handleDrag }) => {
   return (
-    <DivBox type={type} onClick={(e) => handleClick(e)}>
+    <DivBox
+      type={type}
+      state={state}
+      onClick={(e) => handleClick(e)}
+      draggable={type === TARGET || type === START}
+    >
       {type === START && (
-        <PlayCircleFilledIcon color={"inherit"} fontSize={"inherit"} />
+        <PlayCircleFilledIcon
+          color={"inherit"}
+          fontSize={"inherit"}
+          background="inherit"
+        />
       )}
       {type === TARGET && (
-        <TrackChangesIcon color={"inherit"} fontSize={"inherit"} />
+        <TrackChangesIcon
+          color={"inherit"}
+          fontSize={"inherit"}
+          background="inherit"
+        />
+      )}
+      {type === TRAFFIC && (
+        <TrafficIcon
+          color={"inherit"}
+          fontSize={"inherit"}
+          background="inherit"
+        />
       )}
     </DivBox>
   );

@@ -1,24 +1,35 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useReducer } from "react";
 import Heapify from "heapify";
 import "./App.css";
 import Box from "./Box";
+import { algoReducer } from "./reducer/reducer.js";
+import AlgoSelection from "./AlgoSelection";
 import styled from "styled-components";
 import {
   EMPTY,
   NUM_COL,
   NUM_ROW,
-  SOLUTION,
   START,
   TARGET,
-  VISITED,
   WALL,
   VW,
+  DJIKSTRA,
+  NOT_VISITED,
+  TRAFFIC,
 } from "./constants";
-import { djikstra } from "./algorithms";
+import { bfsAlgo, getIndexFromXY } from "./algorithm/algorithms";
 
+const STEPS = 20;
+const TIME_INTERVAL = 1; // 1 mili
 const NUM_BOX = NUM_COL * NUM_ROW;
-const START_NODE = Math.floor((NUM_COL * NUM_ROW) / 2) + 3;
-const TARGET_NODE = Math.floor((NUM_COL * NUM_ROW) / 2 + 1) - 5;
+const START_NODE = getIndexFromXY({
+  x: NUM_COL / 2 - 8,
+  y: Math.floor(NUM_ROW / 2),
+});
+const TARGET_NODE = getIndexFromXY({
+  x: NUM_COL / 2 + 8,
+  y: Math.floor(NUM_ROW / 2),
+});
 
 const MazeRoot = styled.div`
   display: grid;
@@ -27,14 +38,15 @@ const MazeRoot = styled.div`
   width: ${VW - 100}px;
 `;
 
-const App = (props) => {
-  const [nodeList, setNodeList] = useState({});
+export const StateContext = React.createContext();
+export const DispatchContext = React.createContext();
+
+const App = () => {
+  const [nodeList, setNodeList] = useState(initializeNodes());
   const [startNode, setStartNode] = useState(START_NODE);
   const [targetNode, setTargetNode] = useState(TARGET_NODE);
-  const [isSolving, setIsSolving] = useState(false);
-  const [count, setCount] = useState(0);
   const [intervalId, setIntervalId] = useState(0);
-  const [onDrag, setOnDrag] = useState(false);
+  const [state, dispatch] = useReducer(algoReducer, { algo: DJIKSTRA });
 
   const boxList = useMemo(() => {
     const boxList = [];
@@ -45,24 +57,12 @@ const App = (props) => {
     return boxList;
   }, []);
 
-  useEffect(() => {
-    const boxMap = {};
-
-    for (let i = 0; i < NUM_BOX; i++) {
-      boxMap[i] = {
-        type: i === START_NODE ? START : i === TARGET_NODE ? TARGET : EMPTY,
-      };
-    }
-
-    setNodeList(boxMap);
-  }, [setNodeList]);
-
   const runAlgorithm = () => {
-    setIsSolving(true);
     let distanceMap = { [startNode]: 0 };
     let pathMap = { [startNode]: undefined };
     let marked = new Set();
     let pq = new Heapify(NUM_COL * NUM_ROW);
+    let lastVisited = [];
 
     marked.add(startNode);
     pq.push(startNode, 0);
@@ -73,26 +73,14 @@ const App = (props) => {
       return;
     }
 
-    let updatedNodeList = Object.keys(nodeList).reduce((accum, key) => {
-      if (nodeList[key].type === SOLUTION || nodeList[key].type === VISITED) {
-        accum[key] = {
-          ...nodeList[key],
-          type: EMPTY,
-        };
-      } else {
-        accum[key] = { ...nodeList[key] };
-      }
-
-      return accum;
-    }, {});
-
+    let updatedNodeList = resetNodeState(nodeList);
     const newIntervalId = setInterval(() => {
       const {
         solved: rSolved,
         inProgress: rInProgress,
         solution,
         interimObj,
-      } = djikstra(
+      } = bfsAlgo(
         updatedNodeList,
         startNode,
         targetNode,
@@ -100,7 +88,9 @@ const App = (props) => {
         pathMap,
         marked,
         pq,
-        10
+        lastVisited,
+        state.algo,
+        STEPS
       );
 
       if (rInProgress) {
@@ -109,6 +99,7 @@ const App = (props) => {
         pathMap = interimObj.pathMap;
         marked = interimObj.marked;
         pq = interimObj.pq;
+        lastVisited = interimObj.lastVisited;
       }
 
       (rSolved || rInProgress) && setNodeList(solution);
@@ -118,62 +109,84 @@ const App = (props) => {
         setIntervalId(0);
         return;
       }
-    }, 10);
+    }, TIME_INTERVAL);
 
     setIntervalId(newIntervalId);
   };
 
   const handleClick = (i) => (e) => {
-    let nextType = EMPTY;
-    switch (e.detail) {
-      case 1:
-        nextType = WALL;
-        break;
-      case 2:
-        nextType = START;
-        setStartNode(i);
-        break;
-      case 3:
-        nextType = TARGET;
-        setTargetNode(i);
-        break;
-      case 4:
-        nextType = EMPTY;
-        break;
-      default:
-        break;
+    let nextType, nextState;
+    const currentType = nodeList[i].type;
+
+    if (currentType !== TARGET && currentType !== START) {
+      nextType = WALL;
+      nextState = NOT_VISITED;
+    } else if (currentType === WALL) {
+      nextType = EMPTY;
+      nextState = NOT_VISITED;
     }
 
-    setNodeList({
-      ...nodeList,
-      [i]: {
-        ...nodeList[i],
-        type: nextType,
-      },
-    });
+    nextType &&
+      setNodeList({
+        ...nodeList,
+        [i]: {
+          ...nodeList[i],
+          type: nextType,
+          state: nextState,
+        },
+      });
+  };
+
+  const handleDrag = (i) => (e) => {
+    console.log(i);
   };
 
   return (
-    <>
-      <button onClick={runAlgorithm}> BUTTON </button>
-      <MazeRoot>
-        {boxList.map((index) => (
-          <Box
-            key={index}
-            node={index}
-            type={nodeList[index]?.type}
-            handleClick={handleClick(index)}
-          />
-        ))}
-      </MazeRoot>
-    </>
+    <DispatchContext.Provider value={dispatch}>
+      <StateContext.Provider value={state}>
+        <button onClick={runAlgorithm}> BUTTON </button>
+        <AlgoSelection />
+        <MazeRoot>
+          {boxList.map((index) => (
+            <Box
+              key={index}
+              node={index}
+              type={nodeList[index]?.type}
+              state={nodeList[index]?.state}
+              handleClick={handleClick(index)}
+              handleDrag={handleDrag(index)}
+            />
+          ))}
+        </MazeRoot>
+      </StateContext.Provider>
+    </DispatchContext.Provider>
   );
 };
 
-const getIdsOfNonEmptyNodes = (nodes) => {
-  return Object.keys(nodes)
-    .filter((key) => nodes[key].type !== EMPTY)
-    .map((key) => ({ key, type: nodes[key].type }));
+export default App;
+
+const resetNodeState = (nodeList) => {
+  return Object.keys(nodeList).reduce((accum, key) => {
+    accum[key] = { ...nodeList[key], state: NOT_VISITED };
+    return accum;
+  }, {});
 };
 
-export default App;
+const initializeNodes = () => {
+  const boxMap = {};
+
+  for (let i = 0; i < NUM_BOX; i++) {
+    boxMap[i] = {
+      type:
+        i === START_NODE
+          ? START
+          : i === TARGET_NODE
+          ? TARGET
+          : Math.random() < 0.2
+          ? TRAFFIC
+          : EMPTY,
+    };
+  }
+
+  return boxMap
+};

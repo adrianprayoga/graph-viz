@@ -1,0 +1,1 @@
+export const SET_ALGO = 'set_algo'
