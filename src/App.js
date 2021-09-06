@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useMemo, useReducer } from "react";
+import React, { useState, useMemo, useReducer } from "react";
 import Heapify from "heapify";
 import "./App.css";
 import Box from "./Box";
+import NavBar from "./NavBar";
 import { algoReducer } from "./reducer/reducer.js";
-import AlgoSelection from "./AlgoSelection";
 import styled from "styled-components";
 import {
   EMPTY,
@@ -16,18 +16,21 @@ import {
   DJIKSTRA,
   NOT_VISITED,
   TRAFFIC,
+  DRAWER_WIDTH,
 } from "./constants";
 import { bfsAlgo, getIndexFromXY } from "./algorithm/algorithms";
+import DrawerBar from "./DrawerBar";
+import { CssBaseline } from "@material-ui/core";
 
 const STEPS = 20;
 const TIME_INTERVAL = 1; // 1 mili
 const NUM_BOX = NUM_COL * NUM_ROW;
 const START_NODE = getIndexFromXY({
-  x: NUM_COL / 2 - 8,
+  x: Math.floor(NUM_COL / 2 - 8),
   y: Math.floor(NUM_ROW / 2),
 });
 const TARGET_NODE = getIndexFromXY({
-  x: NUM_COL / 2 + 8,
+  x: Math.floor(NUM_COL / 2 + 8),
   y: Math.floor(NUM_ROW / 2),
 });
 
@@ -35,7 +38,7 @@ const MazeRoot = styled.div`
   display: grid;
   grid-template-columns: repeat(${NUM_COL}, 1fr);
   gap: 0 0;
-  width: ${VW - 100}px;
+  width: ${VW - DRAWER_WIDTH - 50}px;
 `;
 
 export const StateContext = React.createContext();
@@ -137,27 +140,23 @@ const App = () => {
       });
   };
 
-  const handleDrag = (i) => (e) => {
-    console.log(i);
-  };
-
   return (
     <DispatchContext.Provider value={dispatch}>
       <StateContext.Provider value={state}>
-        <button onClick={runAlgorithm}> BUTTON </button>
-        <AlgoSelection />
-        <MazeRoot>
-          {boxList.map((index) => (
-            <Box
-              key={index}
-              node={index}
-              type={nodeList[index]?.type}
-              state={nodeList[index]?.state}
-              handleClick={handleClick(index)}
-              handleDrag={handleDrag(index)}
-            />
-          ))}
-        </MazeRoot>
+        <div>
+          <MazeRoot>
+            {boxList.map((index) => (
+              <Box
+                key={index}
+                node={index}
+                type={nodeList[index]?.type}
+                state={nodeList[index]?.state}
+                handleClick={handleClick(index)}
+              />
+            ))}
+          </MazeRoot>
+          <DrawerBar onRunAlgoClick={runAlgorithm} />
+        </div>
       </StateContext.Provider>
     </DispatchContext.Provider>
   );
@@ -184,9 +183,11 @@ const initializeNodes = () => {
           ? TARGET
           : Math.random() < 0.2
           ? TRAFFIC
+          : Math.random() < 0.1
+          ? WALL
           : EMPTY,
     };
   }
 
-  return boxMap
+  return boxMap;
 };

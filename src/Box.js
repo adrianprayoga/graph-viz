@@ -34,13 +34,20 @@ const DivBox = styled.div`
       return css`
         background: black;
       `;
+    } else if (type === TARGET || type === START) {
+      return css`
+        background: transparent;
+      `;
     }
   }};
 
   ${({ state }) => {
     if (state === VISITED_PREV) {
       return css`
-        background: lightsteelblue;
+        background-color: lightsteelblue;
+        -webkit-transition: background-color 400ms linear;
+        -ms-transition: background-color 400ms linear;
+        transition: background-color 400ms linear;
       `;
     } else if (state === VISITED_CURR) {
       return css`

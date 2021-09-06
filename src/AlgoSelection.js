@@ -1,10 +1,10 @@
 import React, { useContext } from "react";
 import { StateContext, DispatchContext } from "./App";
-import InputLabel from "@material-ui/core/InputLabel";
+import { InputLabel, ButtonGroup, Button } from "@material-ui/core";
 import MenuItem from "@material-ui/core/MenuItem";
 import FormControl from "@material-ui/core/FormControl";
 import Select from "@material-ui/core/Select";
-import { A_STAR, BFS, DJIKSTRA } from "./constants";
+import { ALGO_NAME, A_STAR, BFS, DJIKSTRA } from "./constants";
 import { SET_ALGO } from "./reducer/actions";
 
 const AlgoSelection = (props) => {
@@ -14,23 +14,26 @@ const AlgoSelection = (props) => {
   const dispatch = useContext(DispatchContext);
   const state = useContext(StateContext);
 
+  const algoList = [BFS, DJIKSTRA, A_STAR];
+
   return (
-    <FormControl variant="outlined" width="100px">
-      <InputLabel id="demo-simple-select-outlined-label">Algorithm</InputLabel>
-      <Select
-        labelId="demo-simple-select-outlined-label"
-        id="demo-simple-select-outlined"
-        value={state.algo}
-        onChange={(event) =>
-          dispatch({ type: SET_ALGO, payload: event.target.value })
-        }
-        label="Algorithm"
-      >
-        <MenuItem value={BFS}>BFS</MenuItem>
-        <MenuItem value={DJIKSTRA}>DJIKSTRA</MenuItem>
-        <MenuItem value={A_STAR}>A*</MenuItem>
-      </Select>
-    </FormControl>
+    <ButtonGroup
+      fullWidth
+      orientation="vertical"
+      color="primary"
+      variant="contained"
+    >
+      {algoList.map((algo) => (
+        <Button
+          key={algo}
+          fullWidth={true}
+          color={state.algo === algo ? "primary" : "inherit"}
+          onClick={() => dispatch({ type: SET_ALGO, payload: algo })}
+        >
+          {ALGO_NAME[algo]}
+        </Button>
+      ))}
+    </ButtonGroup>
   );
 };
 
