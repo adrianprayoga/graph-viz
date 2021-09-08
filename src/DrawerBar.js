@@ -1,23 +1,13 @@
 import React, { useContext } from "react";
-import {
-  Drawer,
-  makeStyles,
-  List,
-  ListItem,
-  Divider,
-  Button,
-  CssBaseline,
-} from "@material-ui/core";
+import { Drawer, makeStyles, List, ListItem, Divider } from "@material-ui/core";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
-import InboxIcon from "@material-ui/icons/MoveToInbox";
-import MailIcon from "@material-ui/icons/Mail";
-import NavigationIcon from "@material-ui/icons/Navigation";
 import SettingsIcon from "@material-ui/icons/Settings";
 import { StateContext, DispatchContext } from "./App";
-import { DRAWER_WIDTH, ALGO_NAME } from "./constants";
-import AlgoSelection from "./AlgoSelection";
-import { grey } from "@material-ui/core/colors";
+import { DRAWER_WIDTH } from "./constants";
+import AlgoSelection from "./components/AlgoSelection";
+import AlgoButton from "./components/AlgoButton";
+import AlgoSpeed from "./components/AlgoSpeed";
 
 const useStyles = makeStyles((theme) => ({
   appBar: {
@@ -58,13 +48,15 @@ const DrawerBar = (props) => {
       >
         <div className={classes.toolbar} />
 
-        <Button
+        {/* <Button
           onClick={props.onRunAlgoClick}
           color="primary"
           startIcon={<NavigationIcon />}
         >
           {`Run ${ALGO_NAME[state.algo]}`}
-        </Button>
+        </Button> */}
+
+        <AlgoButton onRunAlgoClick={props.onRunAlgoClick} />
         <Divider />
 
         <List>
@@ -77,15 +69,9 @@ const DrawerBar = (props) => {
           <ListItem>
             <AlgoSelection />
           </ListItem>
-
-          {["Inbox", "Starred", "Send email", "Drafts"].map((text, index) => (
-            <ListItem button key={text}>
-              <ListItemIcon>
-                {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-              </ListItemIcon>
-              <ListItemText primary={text} />
-            </ListItem>
-          ))}
+          <ListItem>
+            <AlgoSpeed />
+          </ListItem>
         </List>
         <Divider />
       </Drawer>

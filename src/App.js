@@ -17,6 +17,8 @@ import {
   NOT_VISITED,
   TRAFFIC,
   DRAWER_WIDTH,
+  VISITED_CURR,
+  VISITED_PREV,
 } from "./constants";
 import { bfsAlgo, getIndexFromXY } from "./algorithm/algorithms";
 import DrawerBar from "./DrawerBar";
@@ -49,7 +51,7 @@ const App = () => {
   const [startNode, setStartNode] = useState(START_NODE);
   const [targetNode, setTargetNode] = useState(TARGET_NODE);
   const [intervalId, setIntervalId] = useState(0);
-  const [state, dispatch] = useReducer(algoReducer, { algo: DJIKSTRA });
+  const [state, dispatch] = useReducer(algoReducer, { algo: DJIKSTRA, step: 20 });
 
   const boxList = useMemo(() => {
     const boxList = [];
@@ -93,7 +95,7 @@ const App = () => {
         pq,
         lastVisited,
         state.algo,
-        STEPS
+        state.step
       );
 
       if (rInProgress) {
@@ -166,7 +168,10 @@ export default App;
 
 const resetNodeState = (nodeList) => {
   return Object.keys(nodeList).reduce((accum, key) => {
-    accum[key] = { ...nodeList[key], state: NOT_VISITED };
+    accum[key] = {
+      ...nodeList[key],
+      state: NOT_VISITED,
+    };
     return accum;
   }, {});
 };

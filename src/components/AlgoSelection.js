@@ -1,11 +1,8 @@
 import React, { useContext } from "react";
-import { StateContext, DispatchContext } from "./App";
-import { InputLabel, ButtonGroup, Button } from "@material-ui/core";
-import MenuItem from "@material-ui/core/MenuItem";
-import FormControl from "@material-ui/core/FormControl";
-import Select from "@material-ui/core/Select";
-import { ALGO_NAME, A_STAR, BFS, DJIKSTRA } from "./constants";
-import { SET_ALGO } from "./reducer/actions";
+import { StateContext, DispatchContext } from "../App";
+import { ButtonGroup, Button } from "@material-ui/core";
+import { ALGO_NAME, A_STAR, BFS, DJIKSTRA } from "../constants";
+import { SET_ALGO } from "../reducer/actions";
 
 const AlgoSelection = (props) => {
   // const [algo, setAlgo] = useState(DJIKSTRA);

@@ -43,7 +43,7 @@ export const bfsAlgo = (
         inProgress: false,
         solution: getSolution(copyNodes, pathMap, startId, targetId),
       };
-    } else if (nodeIndex !== startId) {
+    } else {
       currentlyVisited.push(nodeIndex);
       copyNodes[nodeIndex].state = VISITED_CURR;
     }
