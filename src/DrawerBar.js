@@ -1,5 +1,12 @@
 import React, { useContext } from "react";
-import { Drawer, makeStyles, List, ListItem, Divider } from "@material-ui/core";
+import {
+  Drawer,
+  makeStyles,
+  List,
+  ListItem,
+  Divider,
+  Button,
+} from "@material-ui/core";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
 import SettingsIcon from "@material-ui/icons/Settings";
@@ -48,14 +55,6 @@ const DrawerBar = (props) => {
       >
         <div className={classes.toolbar} />
 
-        {/* <Button
-          onClick={props.onRunAlgoClick}
-          color="primary"
-          startIcon={<NavigationIcon />}
-        >
-          {`Run ${ALGO_NAME[state.algo]}`}
-        </Button> */}
-
         <AlgoButton onRunAlgoClick={props.onRunAlgoClick} />
         <Divider />
 
@@ -74,6 +73,39 @@ const DrawerBar = (props) => {
           </ListItem>
         </List>
         <Divider />
+
+        <List>
+          <ListItem>
+            <Button
+              variant="contained"
+              onClick={props.handleClearNodes}
+              color="primary"
+              fullWidth
+            >
+              {`Clear Board`}
+            </Button>
+          </ListItem>
+          <ListItem>
+            <Button
+              variant="contained"
+              onClick={props.handleAddRandomWallNodes}
+              color="primary"
+              fullWidth
+            >
+              {`Add Random Walls`}
+            </Button>
+          </ListItem>
+          <ListItem>
+            <Button
+              variant="contained"
+              onClick={props.handleAddRandomTrafficNodes}
+              color="primary"
+              fullWidth
+            >
+              {`Add Random Traffic`}
+            </Button>
+          </ListItem>
+        </List>
       </Drawer>
     </>
   );

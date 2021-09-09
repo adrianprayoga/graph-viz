@@ -12,7 +12,7 @@ import MenuList from "@material-ui/core/MenuList";
 import NavigationIcon from "@material-ui/icons/Navigation";
 import { DispatchContext, StateContext } from "../App";
 import { ALGO_NAME, A_STAR, BFS, DJIKSTRA } from "../constants";
-import { SET_ALGO } from "../reducer/actions";
+import { SET_ALGO, RUNNING } from "../reducer/actions";
 
 const algoList = [BFS, DJIKSTRA, A_STAR];
 
@@ -54,7 +54,9 @@ const AlgoButton = (props) => {
             startIcon={<NavigationIcon />}
             fullWidth
           >
-            {`Run ${ALGO_NAME[state.algo]}`}
+            {`${state.status === RUNNING ? "Stop" : "Run"} ${
+              ALGO_NAME[state.algo]
+            }`}
           </Button>
           <Button
             color="primary"

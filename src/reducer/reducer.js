@@ -1,4 +1,4 @@
-import { SET_ALGO, SET_STEP } from "./actions";
+import { RUNNING, SET_ALGO, SET_ALGO_STATUS, SET_STEP } from "./actions";
 
 export const algoReducer = (state = [], action) => {
   switch (action.type) {
@@ -7,6 +7,8 @@ export const algoReducer = (state = [], action) => {
       return newState;
     case SET_STEP:
       return { ...state, step: action.payload };
+    case SET_ALGO_STATUS:
+      return { ...state, status: action.payload };
     default:
       return state;
   }

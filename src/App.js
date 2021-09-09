@@ -2,7 +2,6 @@ import React, { useState, useMemo, useReducer } from "react";
 import Heapify from "heapify";
 import "./App.css";
 import Box from "./Box";
-import NavBar from "./NavBar";
 import { algoReducer } from "./reducer/reducer.js";
 import styled from "styled-components";
 import {
@@ -17,14 +16,19 @@ import {
   NOT_VISITED,
   TRAFFIC,
   DRAWER_WIDTH,
-  VISITED_CURR,
-  VISITED_PREV,
+  SOLUTION,
 } from "./constants";
 import { bfsAlgo, getIndexFromXY } from "./algorithm/algorithms";
 import DrawerBar from "./DrawerBar";
-import { CssBaseline } from "@material-ui/core";
+import {
+  initializeNodes,
+  resetNodeState,
+  clearNodes,
+  addRandomWallNodes,
+  addRandomTrafficNodes,
+} from "./algorithm/nodesFunction";
+import { RUNNING, SET_ALGO_STATUS } from "./reducer/actions";
 
-const STEPS = 20;
 const TIME_INTERVAL = 1; // 1 mili
 const NUM_BOX = NUM_COL * NUM_ROW;
 const START_NODE = getIndexFromXY({
@@ -47,11 +51,16 @@ export const StateContext = React.createContext();
 export const DispatchContext = React.createContext();
 
 const App = () => {
-  const [nodeList, setNodeList] = useState(initializeNodes());
+  const [nodeList, setNodeList] = useState(
+    initializeNodes(START_NODE, TARGET_NODE, NUM_BOX)
+  );
   const [startNode, setStartNode] = useState(START_NODE);
   const [targetNode, setTargetNode] = useState(TARGET_NODE);
   const [intervalId, setIntervalId] = useState(0);
-  const [state, dispatch] = useReducer(algoReducer, { algo: DJIKSTRA, step: 20 });
+  const [state, dispatch] = useReducer(algoReducer, {
+    algo: DJIKSTRA,
+    step: 20,
+  });
 
   const boxList = useMemo(() => {
     const boxList = [];
@@ -61,6 +70,18 @@ const App = () => {
 
     return boxList;
   }, []);
+
+  const handleClearNodes = () => {
+    setNodeList((prevNodes) => clearNodes(prevNodes));
+  };
+
+  const handleAddRandomWallNodes = () => {
+    setNodeList((prevNodes) => addRandomWallNodes(prevNodes));
+  };
+
+  const handleAddRandomTrafficNodes = () => {
+    setNodeList((prevNodes) => addRandomTrafficNodes(prevNodes));
+  };
 
   const runAlgorithm = () => {
     let distanceMap = { [startNode]: 0 };
@@ -73,11 +94,13 @@ const App = () => {
     pq.push(startNode, 0);
 
     if (intervalId) {
+      dispatch({ type: SET_ALGO_STATUS, payload: undefined });
       clearInterval(intervalId);
       setIntervalId(0);
       return;
     }
 
+    dispatch({ type: SET_ALGO_STATUS, payload: RUNNING });
     let updatedNodeList = resetNodeState(nodeList);
     const newIntervalId = setInterval(() => {
       const {
@@ -110,6 +133,7 @@ const App = () => {
       (rSolved || rInProgress) && setNodeList(solution);
 
       if (rSolved === true || (rSolved === false && rInProgress === false)) {
+        dispatch({ type: SET_ALGO_STATUS, payload: undefined });
         clearInterval(newIntervalId);
         setIntervalId(0);
         return;
@@ -123,7 +147,11 @@ const App = () => {
     let nextType, nextState;
     const currentType = nodeList[i].type;
 
-    if (currentType !== TARGET && currentType !== START) {
+    if (
+      currentType !== TARGET &&
+      currentType !== START &&
+      currentType !== WALL
+    ) {
       nextType = WALL;
       nextState = NOT_VISITED;
     } else if (currentType === WALL) {
@@ -157,7 +185,12 @@ const App = () => {
               />
             ))}
           </MazeRoot>
-          <DrawerBar onRunAlgoClick={runAlgorithm} />
+          <DrawerBar
+            onRunAlgoClick={runAlgorithm}
+            handleClearNodes={handleClearNodes}
+            handleAddRandomWallNodes={handleAddRandomWallNodes}
+            handleAddRandomTrafficNodes={handleAddRandomTrafficNodes}
+          />
         </div>
       </StateContext.Provider>
     </DispatchContext.Provider>
@@ -165,34 +198,3 @@ const App = () => {
 };
 
 export default App;
-
-const resetNodeState = (nodeList) => {
-  return Object.keys(nodeList).reduce((accum, key) => {
-    accum[key] = {
-      ...nodeList[key],
-      state: NOT_VISITED,
-    };
-    return accum;
-  }, {});
-};
-
-const initializeNodes = () => {
-  const boxMap = {};
-
-  for (let i = 0; i < NUM_BOX; i++) {
-    boxMap[i] = {
-      type:
-        i === START_NODE
-          ? START
-          : i === TARGET_NODE
-          ? TARGET
-          : Math.random() < 0.2
-          ? TRAFFIC
-          : Math.random() < 0.1
-          ? WALL
-          : EMPTY,
-    };
-  }
-
-  return boxMap;
-};
