@@ -41,7 +41,8 @@ export const bfsAlgo = (
       return {
         solved: true,
         inProgress: false,
-        solution: getSolution(copyNodes, pathMap, startId, targetId),
+        solution: copyNodes,
+        solutionList: getSolutionList(pathMap, startId, targetId),
       };
     } else {
       currentlyVisited.push(nodeIndex);
@@ -160,6 +161,18 @@ const getSolution = (nodes, pathMap, startId, targetId) => {
   tmpNodes[targetId] = { ...tmpNodes[targetId], state: SOLUTION };
 
   return tmpNodes;
+};
+
+const getSolutionList = (pathMap, startId, targetId) => {
+  let ls = [targetId];
+  let tmp = pathMap[targetId];
+  while (tmp && tmp !== startId) {
+    ls = ls.concat(tmp);
+    tmp = pathMap[tmp];
+  }
+  ls = ls.concat(startId);
+
+  return ls;
 };
 
 const markAsVisitedPrev = (lastVisited, nodes) => {

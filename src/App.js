@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useReducer } from "react";
+import React, { useState, useMemo, useReducer, useEffect } from "react";
 import Heapify from "heapify";
 import "./App.css";
 import Box from "./Box";
@@ -57,6 +57,7 @@ const App = () => {
   const [startNode, setStartNode] = useState(START_NODE);
   const [targetNode, setTargetNode] = useState(TARGET_NODE);
   const [intervalId, setIntervalId] = useState(0);
+  const [solutionList, setSolutionList] = useState([]);
   const [state, dispatch] = useReducer(algoReducer, {
     algo: DJIKSTRA,
     step: 20,
@@ -107,6 +108,7 @@ const App = () => {
         solved: rSolved,
         inProgress: rInProgress,
         solution,
+        solutionList,
         interimObj,
       } = bfsAlgo(
         updatedNodeList,
@@ -136,12 +138,41 @@ const App = () => {
         dispatch({ type: SET_ALGO_STATUS, payload: undefined });
         clearInterval(newIntervalId);
         setIntervalId(0);
+        setSolutionList(solutionList);
         return;
       }
     }, TIME_INTERVAL);
 
     setIntervalId(newIntervalId);
   };
+
+  useEffect(() => {
+    let tempSolList = [...solutionList];
+    if (tempSolList.length !== 0) {
+      
+
+      const interval = setInterval(() => {
+        if (tempSolList.length !== 0) {
+          setNodeList((prevNodeList) => {
+            const sIndex = tempSolList.pop();
+            prevNodeList[sIndex] = {
+              ...prevNodeList[sIndex],
+              state: SOLUTION,
+            };
+
+            return prevNodeList;
+          });
+
+          setSolutionList(tempSolList);
+
+          if (tempSolList.length === 0) {
+            clearInterval(interval);
+          }
+        }
+      }, TIME_INTERVAL);
+      return () => clearInterval(interval);
+    }
+  }, [solutionList]);
 
   const handleClick = (i) => (e) => {
     let nextType, nextState;
