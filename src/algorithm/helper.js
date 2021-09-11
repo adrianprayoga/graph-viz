@@ -48,9 +48,6 @@ export const getPathNeighbor = (index, step = 2) => {
     { x: x, y: y - step, xWall: x, yWall: y - 1 },
   ];
 
-  console.log(neighbors);
-  console.log(neighbors.filter((pos) => isValidLocation(pos, {}, true)));
-
   return neighbors
     .filter((pos) => isValidLocation(pos, {}, true))
     .map((pos) => ({

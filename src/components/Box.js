@@ -12,6 +12,7 @@ import {
   WALL,
   TRAFFIC,
 } from "../constants";
+import { getXYFromIndex } from "../algorithm/helper";
 
 const DivBox = styled.div`
   background: transparent;
@@ -65,12 +66,13 @@ const DivBox = styled.div`
   }};
 `;
 
-const Box = ({ i, type, state, handleClick, handleDrag }) => {
+const Box = ({ node, type, state, handleClick, handleDrag }) => {
   return (
     <DivBox
       type={type}
       state={state}
       onClick={(e) => handleClick(e)}
+      // onMouseEnter={() => console.log(node, getXYFromIndex(node))}
       draggable={type === TARGET || type === START}
     >
       {type === START && (
@@ -94,7 +96,6 @@ const Box = ({ i, type, state, handleClick, handleDrag }) => {
           background="inherit"
         />
       )}
-      {i}
     </DivBox>
   );
 };

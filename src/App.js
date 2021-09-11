@@ -27,6 +27,7 @@ import {
   clearNodes,
   addRandomWallNodes,
   addRandomTrafficNodes,
+  clearNode,
 } from "./algorithm/nodesFunction";
 import { RUNNING, SET_ALGO_STATUS } from "./reducer/actions";
 import { getIndexFromXY } from "./algorithm/helper";
@@ -60,6 +61,8 @@ const App = () => {
   const [targetNode, setTargetNode] = useState(TARGET_NODE);
   const [intervalId, setIntervalId] = useState(0);
   const [solutionList, setSolutionList] = useState([]);
+  const [wallList, setWallList] = useState([]);
+
   const [state, dispatch] = useReducer(algoReducer, {
     algo: DJIKSTRA,
     step: 20,
@@ -75,20 +78,13 @@ const App = () => {
   }, []);
 
   const handleAddDfsWallNodes = () => {
-    // console.log(generateDfsMaze(startNode, targetNode))
-    const path = generateDfsMaze(startNode, targetNode);
-    const pathSet = new Set(path);
-
-    setNodeList((prevNodes) => {
-      let nodes = clearNodes(prevNodes);
-      for (let i = 0; i < NUM_BOX; i++) {
-        if (i !== START_NODE && i !== TARGET_NODE && !pathSet.has(i)) {
-          nodes[i] = { ...nodes[i], state: NOT_VISITED, type: WALL };
-        }
-      }
-
-      return nodes;
-    });
+    if (wallList.length > 0) {
+      setWallList([]);
+      return;
+    }
+    const pathList = generateDfsMaze(startNode, targetNode);
+    setNodeList((prevNodes) => clearNodes(prevNodes, WALL));
+    setWallList(pathList);
   };
 
   const handleClearNodes = () => {
@@ -186,57 +182,64 @@ const App = () => {
     setIntervalId(newIntervalId);
   };
 
-  useEffect(() => {
-    let tempSolList = [...solutionList];
-    if (tempSolList.length !== 0) {
-      const interval = setInterval(() => {
-        if (tempSolList.length !== 0) {
-          setNodeList((prevNodeList) => {
-            const sIndex = tempSolList.pop();
-            prevNodeList[sIndex] = {
-              ...prevNodeList[sIndex],
-              state: SOLUTION,
-            };
+  // useEffect(() => {
+  //   let tempSolList = [...solutionList];
+  //   if (tempSolList.length !== 0) {
+  //     const interval = setInterval(() => {
+  //       setNodeList((prevNodeList) => {
+  //         const sIndex = tempSolList.pop();
+  //         prevNodeList[sIndex] = {
+  //           ...prevNodeList[sIndex],
+  //           state: SOLUTION,
+  //         };
 
-            return prevNodeList;
-          });
+  //         return prevNodeList;
+  //       });
 
-          setSolutionList(tempSolList);
+  //       setSolutionList(tempSolList);
 
-          if (tempSolList.length === 0) {
-            clearInterval(interval);
-          }
-        }
-      }, TIME_INTERVAL);
-      return () => clearInterval(interval);
-    }
-  }, [solutionList]);
+  //       if (tempSolList.length === 0) {
+  //         clearInterval(interval);
+  //       }
+  //     }, TIME_INTERVAL);
+  //     return () => clearInterval(interval);
+  //   }
+  // }, [solutionList]);
 
   useEffect(() => {
     let tempSolList = [...solutionList];
     if (tempSolList.length !== 0) {
-      const interval = setInterval(() => {
-        if (tempSolList.length !== 0) {
-          setNodeList((prevNodeList) => {
-            const sIndex = tempSolList.pop();
-            prevNodeList[sIndex] = {
-              ...prevNodeList[sIndex],
-              state: SOLUTION,
-            };
+      setNodeList((prevNodeList) => {
+        const sIndex = tempSolList.pop();
+        prevNodeList[sIndex] = {
+          ...prevNodeList[sIndex],
+          state: SOLUTION,
+        };
 
-            return prevNodeList;
-          });
+        return prevNodeList;
+      });
 
-          setSolutionList(tempSolList);
-
-          if (tempSolList.length === 0) {
-            clearInterval(interval);
-          }
-        }
-      }, TIME_INTERVAL);
-      return () => clearInterval(interval);
+      setSolutionList(tempSolList);
     }
   }, [solutionList]);
+
+  useEffect(() => {
+    let temp = [...wallList];
+    if (temp.length !== 0) {
+      setNodeList((prevNodeList) => {
+        let count = 0;
+        while (temp.length > 0 && count < 10) {
+          const sIndex = temp.pop();
+          prevNodeList[sIndex] = clearNode(prevNodeList[sIndex]);
+          count += 1;
+        }
+
+        return prevNodeList;
+      });
+
+      setWallList(temp);
+    }
+  }, [wallList]);
 
   const handleClick = (i) => (e) => {
     let nextType, nextState;

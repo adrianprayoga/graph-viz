@@ -20,21 +20,28 @@ export const generateDfsMaze = (startNode, targetNode) => {
 
       visited.add(pathIndex.n);
 
-      const neighbors = getPathNeighbor(pathIndex.n, 2);
-      shuffle(neighbors)
-      console.log(neighbors);
+      const fullNeighbors = getPathNeighbor(pathIndex.n, 2);
+      const filteredNeighbors = fullNeighbors.filter(
+        (neighborId) => !visited.has(neighborId.n)
+      );
+      shuffle(filteredNeighbors);
 
-      neighbors
-        .filter((neighborId) => !visited.has(neighborId.n))
-        .forEach((neighborId) => {
-          console.log('nid', neighborId)
-          stack.push(neighborId);
-        });
+      filteredNeighbors.forEach((neighborId) => {
+        stack.push(neighborId);
+      });
+
+      // if (filteredNeighbors.length > 0) {
+      //   console.log("neighbors ok ", pathIndex.n, fullNeighbors, filteredNeighbors);
+      //   stack.push(filteredNeighbors[0]);
+      // } else {
+      //   console.log("neighbors nok", pathIndex.n, fullNeighbors, filteredNeighbors);
+      // }
+
+      // console.log(stack);
+      // console.log(path);
     }
   }
 
-  console.log(visited)
-  console.log(path);
-
+  path.reverse();
   return path;
 };

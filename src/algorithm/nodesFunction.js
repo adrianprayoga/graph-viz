@@ -58,15 +58,15 @@ export const addRandomTrafficNodes = (nodeList) => {
   }, {});
 };
 
-export const clearNodes = (nodeList) => {
+export const clearNodes = (nodeList, nodeType = EMPTY) => {
   return Object.keys(nodeList).reduce((accum, key) => {
-    const type = nodeList[key].type;
-    const nextType = type === START || type === TARGET ? type : EMPTY;
-    accum[key] = {
-      ...nodeList[key],
-      state: NOT_VISITED,
-      type: nextType,
-    };
+    accum[key] = clearNode(nodeList[key], nodeType);
     return accum;
   }, {});
+};
+
+export const clearNode = (node, nodeType) => {
+  const type = node.type;
+  const nextType = type === START || type === TARGET ? type : nodeType;
+  return { ...node, state: NOT_VISITED, type: nextType };
 };
