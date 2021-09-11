@@ -1,4 +1,10 @@
-import { RUNNING, SET_ALGO, SET_ALGO_STATUS, SET_STEP } from "./actions";
+import {
+  RUNNING,
+  SET_ALGO,
+  SET_ALGO_STATUS,
+  SET_MAZE_GEN,
+  SET_STEP,
+} from "./actions";
 
 export const algoReducer = (state = [], action) => {
   switch (action.type) {
@@ -9,6 +15,8 @@ export const algoReducer = (state = [], action) => {
       return { ...state, step: action.payload };
     case SET_ALGO_STATUS:
       return { ...state, status: action.payload };
+    case SET_MAZE_GEN:
+      return { ...state, maze_gen: action.payload };
     default:
       return state;
   }

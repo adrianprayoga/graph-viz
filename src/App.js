@@ -18,6 +18,8 @@ import {
   SOLUTION,
   DFS,
   NUM_BOX,
+  DFS_MAZE,
+  RANDOM_MAZE,
 } from "./constants";
 import { algo } from "./algorithm/algorithms";
 import DrawerBar from "./DrawerBar";
@@ -25,13 +27,15 @@ import {
   initializeNodes,
   resetNodeState,
   clearNodes,
-  addRandomWallNodes,
   addRandomTrafficNodes,
   clearNode,
 } from "./algorithm/nodesFunction";
 import { RUNNING, SET_ALGO_STATUS } from "./reducer/actions";
 import { getIndexFromXY } from "./algorithm/helper";
-import { generateDfsMaze } from "./algorithm/mazeGeneration";
+import {
+  generateDfsMaze,
+  generateRandomMaze,
+} from "./algorithm/mazeGeneration";
 
 const TIME_INTERVAL = 1; // 1 mili
 const START_NODE = getIndexFromXY({
@@ -47,7 +51,7 @@ const MazeRoot = styled.div`
   display: grid;
   grid-template-columns: repeat(${NUM_COL}, 1fr);
   gap: 0 0;
-  width: ${VW - DRAWER_WIDTH - 50}px;
+  width: 10px;
 `;
 
 export const StateContext = React.createContext();
@@ -65,7 +69,8 @@ const App = () => {
 
   const [state, dispatch] = useReducer(algoReducer, {
     algo: DJIKSTRA,
-    step: 20,
+    step: 10,
+    maze_gen: DFS_MAZE,
   });
 
   const boxList = useMemo(() => {
@@ -77,22 +82,23 @@ const App = () => {
     return boxList;
   }, []);
 
-  const handleAddDfsWallNodes = () => {
-    if (wallList.length > 0) {
-      setWallList([]);
-      return;
+  const handleAddMaze = () => {
+    let pathList = [];
+    let inverse = false;
+    if (state.maze_gen === DFS_MAZE) {
+      pathList = generateDfsMaze(startNode, targetNode);
+      inverse = true;
+    } else if (state.maze_gen === RANDOM_MAZE) {
+      pathList = generateRandomMaze(startNode, targetNode);
     }
-    const pathList = generateDfsMaze(startNode, targetNode);
-    setNodeList((prevNodes) => clearNodes(prevNodes, WALL));
+
+    setNodeList((prevNodes) => clearNodes(prevNodes, inverse ? WALL : EMPTY));
+
     setWallList(pathList);
   };
 
   const handleClearNodes = () => {
     setNodeList((prevNodes) => clearNodes(prevNodes));
-  };
-
-  const handleAddRandomWallNodes = () => {
-    setNodeList((prevNodes) => addRandomWallNodes(prevNodes));
   };
 
   const handleAddRandomTrafficNodes = () => {
@@ -207,30 +213,39 @@ const App = () => {
   // }, [solutionList]);
 
   useEffect(() => {
-    let tempSolList = [...solutionList];
-    if (tempSolList.length !== 0) {
+    let temp = [...solutionList];
+    if (temp.length !== 0) {
       setNodeList((prevNodeList) => {
-        const sIndex = tempSolList.pop();
-        prevNodeList[sIndex] = {
-          ...prevNodeList[sIndex],
-          state: SOLUTION,
-        };
+        let count = 0;
+        while (temp.length > 0 && count < Math.min(state.step / 2, 5)) {
+          const sIndex = temp.pop();
+          prevNodeList[sIndex] = {
+            ...prevNodeList[sIndex],
+            state: SOLUTION,
+          };
+          count += 1;
+        }
 
         return prevNodeList;
       });
 
-      setSolutionList(tempSolList);
+      setSolutionList(temp);
     }
   }, [solutionList]);
 
   useEffect(() => {
+    const inverse = [DFS_MAZE].indexOf(state.maze_gen) !== -1;
     let temp = [...wallList];
+
     if (temp.length !== 0) {
       setNodeList((prevNodeList) => {
         let count = 0;
-        while (temp.length > 0 && count < 10) {
+        while (temp.length > 0 && count < state.step) {
           const sIndex = temp.pop();
-          prevNodeList[sIndex] = clearNode(prevNodeList[sIndex]);
+          prevNodeList[sIndex] = clearNode(
+            prevNodeList[sIndex],
+            inverse ? EMPTY : WALL
+          );
           count += 1;
         }
 
@@ -239,6 +254,7 @@ const App = () => {
 
       setWallList(temp);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wallList]);
 
   const handleClick = (i) => (e) => {
@@ -286,9 +302,8 @@ const App = () => {
           <DrawerBar
             onRunAlgoClick={runAlgorithm}
             handleClearNodes={handleClearNodes}
-            handleAddRandomWallNodes={handleAddRandomWallNodes}
             handleAddRandomTrafficNodes={handleAddRandomTrafficNodes}
-            handleAddDfsWallNodes={handleAddDfsWallNodes}
+            handleAddMaze={handleAddMaze}
           />
         </div>
       </StateContext.Provider>

@@ -9,21 +9,18 @@ import Paper from "@material-ui/core/Paper";
 import Popper from "@material-ui/core/Popper";
 import MenuItem from "@material-ui/core/MenuItem";
 import MenuList from "@material-ui/core/MenuList";
-import NavigationIcon from "@material-ui/icons/Navigation";
 import { DispatchContext, StateContext } from "../App";
-import { ALGO_NAME } from "../constants";
-import { SET_ALGO, RUNNING } from "../reducer/actions";
+import { WALL_GEN } from "../constants";
+import { GENERATING_MAZE, SET_MAZE_GEN, SET_MAZE_GEN_STATUS } from "../reducer/actions";
 
-const algoList = Object.keys(ALGO_NAME);
-
-const AlgoButton = (props) => {
+const RandomizeMazeButton = (props) => {
   const dispatch = useContext(DispatchContext);
   const state = useContext(StateContext);
   const [open, setOpen] = React.useState(false);
   const anchorRef = React.useRef(null);
 
   const handleMenuItemClick = (algo) => {
-    dispatch({ type: SET_ALGO, payload: parseInt(algo) });
+    dispatch({ type: SET_MAZE_GEN, payload: algo });
     setOpen(false);
   };
 
@@ -40,24 +37,24 @@ const AlgoButton = (props) => {
   };
 
   return (
-    <Grid container direction="column" alignItems="center">
+    <Grid
+      container
+      direction="column"
+      alignItems="center"
+      style={{ width: "100%" }}
+    >
       <Grid item xs={12} style={{ width: "100%" }}>
         <ButtonGroup
           variant="contained"
           color="primary"
           ref={anchorRef}
           aria-label="split button"
-          style={{ width: "100%" }}
           fullWidth
         >
-          <Button
-            onClick={props.onButtonClick}
-            startIcon={<NavigationIcon />}
-            fullWidth
-          >
-            {`${state.status === RUNNING ? "Stop" : "Run"} ${
-              ALGO_NAME[state.algo]
-            }`}
+          <Button onClick={props.onButtonClick} fullWidth>
+            {`${
+              state.maze_gen_status === GENERATING_MAZE ? "Stop" : "Create"
+            } ${state.maze_gen}`}
           </Button>
           <Button
             color="primary"
@@ -91,13 +88,13 @@ const AlgoButton = (props) => {
               <Paper>
                 <ClickAwayListener onClickAway={handleClose}>
                   <MenuList id="split-button-menu">
-                    {algoList.map((option) => (
+                    {WALL_GEN.map((option) => (
                       <MenuItem
                         key={option}
-                        selected={state.algo === option}
+                        selected={state.maze_gen === option}
                         onClick={() => handleMenuItemClick(option)}
                       >
-                        {ALGO_NAME[option]}
+                        {option}
                       </MenuItem>
                     ))}
                   </MenuList>
@@ -111,4 +108,4 @@ const AlgoButton = (props) => {
   );
 };
 
-export default AlgoButton;
+export default RandomizeMazeButton;

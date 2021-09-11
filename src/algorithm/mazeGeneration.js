@@ -45,3 +45,14 @@ export const generateDfsMaze = (startNode, targetNode) => {
   path.reverse();
   return path;
 };
+
+export const generateRandomMaze = (startNode, targetNode) => {
+  const wallList = [];
+  for (let i = 0; i < NUM_BOX; i++) {
+    if (Math.random() < 0.35 && i !== startNode && i !== targetNode) {
+      wallList.push(i);
+    }
+  }
+
+  return wallList;
+};

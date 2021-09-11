@@ -15,6 +15,7 @@ import { DRAWER_WIDTH } from "./constants";
 import AlgoSelection from "./components/AlgoSelection";
 import AlgoButton from "./components/AlgoButton";
 import AlgoSpeed from "./components/AlgoSpeed";
+import RandomizeMazeButton from "./components/RandomizeMazeButton";
 
 const useStyles = makeStyles((theme) => ({
   appBar: {
@@ -55,7 +56,12 @@ const DrawerBar = (props) => {
       >
         <div className={classes.toolbar} />
 
-        <AlgoButton onRunAlgoClick={props.onRunAlgoClick} />
+        <List>
+          <ListItem>
+            <AlgoButton onButtonClick={props.onRunAlgoClick} />
+          </ListItem>
+        </List>
+
         <Divider />
 
         <List>
@@ -64,9 +70,6 @@ const DrawerBar = (props) => {
               <SettingsIcon />
             </ListItemIcon>
             <ListItemText primary="Algorithm Settings" />
-          </ListItem>
-          <ListItem>
-            <AlgoSelection />
           </ListItem>
           <ListItem>
             <AlgoSpeed />
@@ -86,25 +89,9 @@ const DrawerBar = (props) => {
             </Button>
           </ListItem>
           <ListItem>
-            <Button
-              variant="contained"
-              onClick={props.handleAddRandomWallNodes}
-              color="primary"
-              fullWidth
-            >
-              {`Add Random Walls`}
-            </Button>
+            <RandomizeMazeButton onButtonClick={props.handleAddMaze} />
           </ListItem>
-          <ListItem>
-            <Button
-              variant="contained"
-              onClick={props.handleAddDfsWallNodes}
-              color="primary"
-              fullWidth
-            >
-              {`Add DFS Walls`}
-            </Button>
-          </ListItem>
+
           <ListItem>
             <Button
               variant="contained"
