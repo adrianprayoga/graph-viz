@@ -98,6 +98,16 @@ const DrawerBar = (props) => {
           <ListItem>
             <Button
               variant="contained"
+              onClick={props.handleAddDfsWallNodes}
+              color="primary"
+              fullWidth
+            >
+              {`Add DFS Walls`}
+            </Button>
+          </ListItem>
+          <ListItem>
+            <Button
+              variant="contained"
               onClick={props.handleAddRandomTrafficNodes}
               color="primary"
               fullWidth

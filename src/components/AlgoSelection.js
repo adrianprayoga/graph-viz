@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import { StateContext, DispatchContext } from "../App";
 import { ButtonGroup, Button } from "@material-ui/core";
-import { ALGO_NAME, A_STAR, BFS, DJIKSTRA } from "../constants";
+import { ALGO_NAME, A_STAR, BFS, DJIKSTRA, DFS } from "../constants";
 import { SET_ALGO } from "../reducer/actions";
 
 const AlgoSelection = (props) => {
@@ -11,7 +11,7 @@ const AlgoSelection = (props) => {
   const dispatch = useContext(DispatchContext);
   const state = useContext(StateContext);
 
-  const algoList = [BFS, DJIKSTRA, A_STAR];
+  const algoList = [DFS, BFS, DJIKSTRA, A_STAR];
 
   return (
     <ButtonGroup

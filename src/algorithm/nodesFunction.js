@@ -27,7 +27,7 @@ export const addRandomWallNodes = (nodeList) => {
 
   return Object.keys(cleanNodes).reduce((accum, key) => {
     const type = cleanNodes[key].type;
-    if (Math.random() < 0.25 && type !== START && type !== TARGET) {
+    if (Math.random() < 0.35 && type !== START && type !== TARGET) {
       accum[key] = {
         ...cleanNodes[key],
         type: WALL,

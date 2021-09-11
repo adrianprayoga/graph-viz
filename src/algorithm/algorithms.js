@@ -1,6 +1,7 @@
 import Heapify from "heapify";
 import {
   A_STAR,
+  DFS,
   DJIKSTRA,
   NUM_COL,
   NUM_ROW,
@@ -10,21 +11,107 @@ import {
   VISITED_PREV,
   WALL,
 } from "../constants";
+import { getNeighbor, getXYFromIndex } from "./helper";
 
 const MAX_DIST = 99999999999;
 
-export const bfsAlgo = (
+export const algo = (
   nodes,
   startId,
   targetId,
-  distanceMap = { [startId]: 0 },
-  pathMap = { [startId]: undefined },
-  marked = new Set(),
-  pq = new Heapify(NUM_COL * NUM_ROW),
-  lastVisited = [],
-  algoType = 2,
-  steps = MAX_DIST
+  algoType = DJIKSTRA,
+  steps = MAX_DIST,
+  algoMemoryObj
 ) => {
+  if (algoType === DFS) {
+    return dfsAlgo(nodes, startId, targetId, algoType, steps, algoMemoryObj);
+  } else {
+    return bfsAlgo(nodes, startId, targetId, algoType, steps, algoMemoryObj);
+  }
+};
+
+const dfsAlgo = (
+  nodes,
+  startId,
+  targetId,
+  algoType = DFS,
+  steps = MAX_DIST,
+  algoMemoryObj
+) => {
+  let pathMap = algoMemoryObj.pathMap || { [startId]: undefined };
+  let marked = algoMemoryObj.marked || new Set();
+  let lastVisited = algoMemoryObj.lastVisited || [];
+  let deque = algoMemoryObj.deque || [startId];
+
+  let count = 0;
+  let copyNodes = { ...nodes };
+  let currentlyVisited = [];
+
+  while (deque.length > 0 && count < steps) {
+    const nodeIndex = deque.pop();
+
+    count += 1;
+
+    if (targetId === nodeIndex) {
+      copyNodes = markAsVisitedPrev(
+        lastVisited.concat(currentlyVisited),
+        copyNodes
+      );
+      return {
+        solved: true,
+        inProgress: false,
+        solution: copyNodes,
+        solutionList: getSolutionList(pathMap, startId, targetId),
+      };
+    } else {
+      currentlyVisited.push(nodeIndex);
+      copyNodes[nodeIndex].state = VISITED_CURR;
+    }
+
+    if (!marked.has(nodeIndex)) {
+      marked.add(nodeIndex);
+      getNeighbor(copyNodes, nodeIndex)
+        .filter((neighborId) => !marked.has(neighborId))
+        .forEach((neighborId) => {
+          pathMap[neighborId] = nodeIndex;
+          deque.push(neighborId);
+        });
+    }
+  }
+
+  if (count === steps) {
+    copyNodes = markAsVisitedPrev(lastVisited, copyNodes);
+
+    return {
+      solved: false,
+      inProgress: true,
+      solution: copyNodes,
+      interimObj: {
+        pathMap,
+        marked,
+        lastVisited: currentlyVisited,
+        deque,
+      },
+    };
+  }
+
+  return { solved: false, inProgress: false, solution: copyNodes };
+};
+
+const bfsAlgo = (
+  nodes,
+  startId,
+  targetId,
+  algoType = DJIKSTRA,
+  steps = MAX_DIST,
+  algoMemoryObj
+) => {
+  let distanceMap = algoMemoryObj.distanceMap || { [startId]: 0 };
+  let pathMap = algoMemoryObj.pathMap || { [startId]: undefined };
+  let marked = algoMemoryObj.marked || new Set();
+  let pq = algoMemoryObj.pq || new Heapify(NUM_COL * NUM_ROW);
+  let lastVisited = algoMemoryObj.lastVisited || [];
+
   let count = 0;
   let copyNodes = { ...nodes };
   let currentlyVisited = [];
@@ -95,38 +182,6 @@ export const bfsAlgo = (
   }
 
   return { solved: false, inProgress: false, solution: copyNodes };
-};
-
-// Ignore diagonal
-const getNeighbor = (nodes, index) => {
-  const { x, y } = getXYFromIndex(index);
-
-  const neighbors = [
-    { x: x + 1, y: y },
-    { x: x - 1, y: y },
-    { x: x, y: y + 1 },
-    { x: x, y: y - 1 },
-  ];
-
-  return neighbors
-    .filter((pos) => isValidLocation(pos, nodes))
-    .map((pos) => getIndexFromXY(pos));
-};
-
-export const getIndexFromXY = ({ x, y }) => y * NUM_COL + x;
-
-const getXYFromIndex = (index) => {
-  const y = Math.floor(index / NUM_COL);
-  const x = index % NUM_COL;
-
-  return { x, y };
-};
-
-const isValidLocation = ({ x, y }, nodes) => {
-  const index = getIndexFromXY({ x, y });
-  return (
-    0 <= x && x < NUM_COL && 0 <= y && y < NUM_ROW && nodes[index].type !== WALL
-  );
 };
 
 const getDistanceToNeighbor = (algoType, nodes, neighborId) => {

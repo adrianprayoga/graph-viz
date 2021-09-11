@@ -11,7 +11,7 @@ import {
   VISITED_CURR,
   WALL,
   TRAFFIC,
-} from "./constants";
+} from "../constants";
 
 const DivBox = styled.div`
   background: transparent;
@@ -94,6 +94,7 @@ const Box = ({ i, type, state, handleClick, handleDrag }) => {
           background="inherit"
         />
       )}
+      {i}
     </DivBox>
   );
 };
