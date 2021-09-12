@@ -26,6 +26,23 @@ const DivBox = styled.div`
   font-size: 30px;
   color: darkgray;
 
+  ${({ small, type }) => {
+    if (small && [START, TRAFFIC, TARGET].indexOf(type) !== -1) {
+      return css`
+        height: 20px;
+        width: 20px;
+        font-size: 25px;
+        border: transparent;
+      `;
+    } else if (small) {
+      return css`
+        height: 20px;
+        width: 20px;
+        font-size: 25px;
+      `;
+    }
+  }};
+
   ${({ type }) => {
     if (type === TRAFFIC) {
       return css`
@@ -67,14 +84,23 @@ const DivBox = styled.div`
   }};
 `;
 
-const Box = ({ node, type, state, handleClick, handleDrag }) => {
+const Box = ({
+  disabled,
+  small,
+  node,
+  type,
+  state,
+  handleClick,
+  handleDrag,
+}) => {
   return (
     <DivBox
       type={type}
       state={state}
-      onClick={(e) => handleClick(e)}
+      small={small}
+      onClick={(e) => !disabled && handleClick(e)}
       // onMouseEnter={() => console.log(node, getXYFromIndex(node))}
-      draggable={type === TARGET || type === START}
+      draggable={!disabled && (type === TARGET || type === START)}
     >
       {type === START && (
         <PlayCircleFilledIcon

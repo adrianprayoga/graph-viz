@@ -5,13 +5,30 @@ import Slider from "@material-ui/core/Slider";
 import { DispatchContext, StateContext } from "../App";
 import { SET_STEP } from "../reducer/actions";
 
+const marks = [
+  {
+    value: 1,
+    label: 1,
+  },
+  {
+    value: 2,
+  },
+]
+  .concat(Array.from({ length: 19 }, (_, i) => ({ value: (i + 1) * 5 })))
+  .concat({
+    value: 100,
+    label: 100,
+  });
+
 const useStyles = makeStyles({
   root: {
     width: "90%",
   },
+  slider: {
+    marginLeft: "10px",
+    marginRight: "10px",
+  },
 });
-
-const marks = [2, 5, 10, 20, 40];
 
 export default function AlgoSpeed() {
   const classes = useStyles();
@@ -34,8 +51,10 @@ export default function AlgoSpeed() {
         onChange={handleChange}
         aria-labelledby="discrete-slider-restrict"
         step={null}
-        max={40}
-        marks={marks.map((mark) => ({ value: mark, label: mark }))}
+        min={1}
+        max={100}
+        marks={marks}
+        className={classes.slider}
       />
     </div>
   );

@@ -6,16 +6,20 @@ import {
   ListItem,
   Divider,
   Button,
+  Typography,
+  Tooltip,
 } from "@material-ui/core";
+import "@fontsource/roboto";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
 import SettingsIcon from "@material-ui/icons/Settings";
+import Box from "./components/Box";
 import { StateContext, DispatchContext } from "./App";
-import { DRAWER_WIDTH } from "./constants";
-import AlgoSelection from "./components/AlgoSelection";
+import { DRAWER_WIDTH, START, TARGET, TRAFFIC, WALL } from "./constants";
 import AlgoButton from "./components/AlgoButton";
 import AlgoSpeed from "./components/AlgoSpeed";
 import RandomizeMazeButton from "./components/RandomizeMazeButton";
+import { InfoOutlined, InfoRounded } from "@material-ui/icons";
 
 const useStyles = makeStyles((theme) => ({
   appBar: {
@@ -36,12 +40,42 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: theme.palette.background.default,
     padding: theme.spacing(3),
   },
+  infoIcon: { alignSelf: "center", marginLeft: "5px" },
+  listItemText: { display: "flex" },
 }));
 
 const DrawerBar = (props) => {
   const classes = useStyles();
   const dispatch = useContext(DispatchContext);
   const state = useContext(StateContext);
+
+  const infoList = [
+    { primaryText: "Empty Node" },
+    {
+      primaryText: (
+        <div className={classes.listItemText}>
+          {"Wall Node"}
+          <Tooltip title="Wall Node is impenetrable" arrow>
+            <InfoOutlined fontSize="inherit" className={classes.infoIcon} />
+          </Tooltip>
+        </div>
+      ),
+      type: WALL,
+    },
+    {
+      primaryText: (
+        <div className={classes.listItemText}>
+          {"Traffic Node"}
+          <Tooltip title="Traffic Node costs 3x more to traverse" arrow>
+            <InfoOutlined fontSize="inherit" className={classes.infoIcon} />
+          </Tooltip>
+        </div>
+      ),
+      type: TRAFFIC,
+    },
+    { primaryText: "Start Node", type: START },
+    { primaryText: "Target Node", type: TARGET },
+  ];
 
   return (
     <>
@@ -102,6 +136,23 @@ const DrawerBar = (props) => {
               {`Add Random Traffic`}
             </Button>
           </ListItem>
+        </List>
+        <Divider />
+        <List>
+          <ListItem>
+            <ListItemIcon>
+              <InfoRounded />
+            </ListItemIcon>
+            <ListItemText primary="Information" />
+          </ListItem>
+          <List dense>
+            {infoList.map((item) => (
+              <ListItem>
+                <ListItemText primary={item.primaryText} />
+                <Box small disabled={true} type={item.type} />
+              </ListItem>
+            ))}
+          </List>
         </List>
       </Drawer>
     </>
