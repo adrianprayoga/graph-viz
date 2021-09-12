@@ -42,5 +42,8 @@ export const ALGO_NAME = {
 };
 
 export const RANDOM_MAZE = "Random Maze";
+export const BINARY_MAZE = "Binary Maze";
 export const DFS_MAZE = "DFS Maze";
-export const WALL_GEN = [DFS_MAZE, RANDOM_MAZE];
+export const PRIMS_MAZE = "Prim's Maze";
+export const KRUSKAL_MAZE = "Kruskal Maze";
+export const WALL_GEN = [DFS_MAZE, PRIMS_MAZE, BINARY_MAZE, KRUSKAL_MAZE, RANDOM_MAZE];

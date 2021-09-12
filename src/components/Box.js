@@ -34,6 +34,7 @@ const DivBox = styled.div`
     } else if (type === WALL) {
       return css`
         background: black;
+        border: 0.5px solid black;
         -webkit-transition: background-color 1000ms linear;
         -ms-transition: background-color 1000ms linear;
         transition: background-color 1000ms linear;

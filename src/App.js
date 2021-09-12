@@ -20,6 +20,9 @@ import {
   NUM_BOX,
   DFS_MAZE,
   RANDOM_MAZE,
+  BINARY_MAZE,
+  PRIMS_MAZE,
+  KRUSKAL_MAZE,
 } from "./constants";
 import { algo } from "./algorithm/algorithms";
 import DrawerBar from "./DrawerBar";
@@ -33,7 +36,10 @@ import {
 import { RUNNING, SET_ALGO_STATUS } from "./reducer/actions";
 import { getIndexFromXY } from "./algorithm/helper";
 import {
+  generateBinaryMaze,
   generateDfsMaze,
+  generateKruskalMaze,
+  generatePrimsMaze,
   generateRandomMaze,
 } from "./algorithm/mazeGeneration";
 
@@ -90,6 +96,15 @@ const App = () => {
       inverse = true;
     } else if (state.maze_gen === RANDOM_MAZE) {
       pathList = generateRandomMaze(startNode, targetNode);
+    } else if (state.maze_gen === BINARY_MAZE) {
+      pathList = generateBinaryMaze(startNode, targetNode);
+      inverse = true;
+    } else if (state.maze_gen === PRIMS_MAZE) {
+      pathList = generatePrimsMaze(startNode, targetNode);
+      inverse = true;
+    } else if (state.maze_gen === KRUSKAL_MAZE) {
+      pathList = generateKruskalMaze(startNode, targetNode);
+      inverse = true;
     }
 
     setNodeList((prevNodes) => clearNodes(prevNodes, inverse ? WALL : EMPTY));
@@ -234,7 +249,10 @@ const App = () => {
   }, [solutionList]);
 
   useEffect(() => {
-    const inverse = [DFS_MAZE].indexOf(state.maze_gen) !== -1;
+    const inverse =
+      [KRUSKAL_MAZE, DFS_MAZE, BINARY_MAZE, PRIMS_MAZE].indexOf(
+        state.maze_gen
+      ) !== -1;
     let temp = [...wallList];
 
     if (temp.length !== 0) {
