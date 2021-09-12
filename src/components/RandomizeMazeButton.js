@@ -11,7 +11,11 @@ import MenuItem from "@material-ui/core/MenuItem";
 import MenuList from "@material-ui/core/MenuList";
 import { DispatchContext, StateContext } from "../App";
 import { WALL_GEN } from "../constants";
-import { GENERATING_MAZE, SET_MAZE_GEN, SET_MAZE_GEN_STATUS } from "../reducer/actions";
+import {
+  GENERATING_MAZE,
+  SET_MAZE_GEN,
+  SET_MAZE_GEN_STATUS,
+} from "../reducer/actions";
 
 const RandomizeMazeButton = (props) => {
   const dispatch = useContext(DispatchContext);
@@ -52,9 +56,7 @@ const RandomizeMazeButton = (props) => {
           fullWidth
         >
           <Button onClick={props.onButtonClick} fullWidth>
-            {`${
-              state.maze_gen_status === GENERATING_MAZE ? "Stop" : "Create"
-            } ${state.maze_gen}`}
+            {`${state.maze_gen_status ? "Stop" : "Create"} ${state.maze_gen}`}
           </Button>
           <Button
             color="primary"

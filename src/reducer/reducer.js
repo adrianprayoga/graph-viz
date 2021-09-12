@@ -3,6 +3,7 @@ import {
   SET_ALGO,
   SET_ALGO_STATUS,
   SET_MAZE_GEN,
+  SET_MAZE_GEN_STATUS,
   SET_STEP,
 } from "./actions";
 
@@ -17,6 +18,8 @@ export const algoReducer = (state = [], action) => {
       return { ...state, status: action.payload };
     case SET_MAZE_GEN:
       return { ...state, maze_gen: action.payload };
+    case SET_MAZE_GEN_STATUS:
+      return { ...state, maze_gen_status: action.payload };
     default:
       return state;
   }

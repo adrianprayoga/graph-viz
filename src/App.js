@@ -33,7 +33,11 @@ import {
   addRandomTrafficNodes,
   clearNode,
 } from "./algorithm/nodesFunction";
-import { RUNNING, SET_ALGO_STATUS } from "./reducer/actions";
+import {
+  RUNNING,
+  SET_ALGO_STATUS,
+  SET_MAZE_GEN_STATUS,
+} from "./reducer/actions";
 import { getIndexFromXY } from "./algorithm/helper";
 import {
   generateBinaryMaze,
@@ -77,6 +81,7 @@ const App = () => {
     algo: DJIKSTRA,
     step: 10,
     maze_gen: DFS_MAZE,
+    maze_gen_status: false,
   });
 
   const boxList = useMemo(() => {
@@ -89,27 +94,32 @@ const App = () => {
   }, []);
 
   const handleAddMaze = () => {
-    let pathList = [];
-    let inverse = false;
-    if (state.maze_gen === DFS_MAZE) {
-      pathList = generateDfsMaze(startNode, targetNode);
-      inverse = true;
-    } else if (state.maze_gen === RANDOM_MAZE) {
-      pathList = generateRandomMaze(startNode, targetNode);
-    } else if (state.maze_gen === BINARY_MAZE) {
-      pathList = generateBinaryMaze(startNode, targetNode);
-      inverse = true;
-    } else if (state.maze_gen === PRIMS_MAZE) {
-      pathList = generatePrimsMaze(startNode, targetNode);
-      inverse = true;
-    } else if (state.maze_gen === KRUSKAL_MAZE) {
-      pathList = generateKruskalMaze(startNode, targetNode);
-      inverse = true;
+    if (!state.maze_gen_status) {
+      dispatch({ type: SET_MAZE_GEN_STATUS, payload: true });
+      let pathList = [];
+      let inverse = false;
+      if (state.maze_gen === DFS_MAZE) {
+        pathList = generateDfsMaze(startNode, targetNode);
+        inverse = true;
+      } else if (state.maze_gen === RANDOM_MAZE) {
+        pathList = generateRandomMaze(startNode, targetNode);
+      } else if (state.maze_gen === BINARY_MAZE) {
+        pathList = generateBinaryMaze(startNode, targetNode);
+        inverse = true;
+      } else if (state.maze_gen === PRIMS_MAZE) {
+        pathList = generatePrimsMaze(startNode, targetNode);
+        inverse = true;
+      } else if (state.maze_gen === KRUSKAL_MAZE) {
+        pathList = generateKruskalMaze(startNode, targetNode);
+        inverse = true;
+      }
+
+      setNodeList((prevNodes) => clearNodes(prevNodes, inverse ? WALL : EMPTY));
+
+      setWallList(pathList);
+    } else {
+      dispatch({ type: SET_MAZE_GEN_STATUS, payload: false });
     }
-
-    setNodeList((prevNodes) => clearNodes(prevNodes, inverse ? WALL : EMPTY));
-
-    setWallList(pathList);
   };
 
   const handleClearNodes = () => {
@@ -255,25 +265,31 @@ const App = () => {
       ) !== -1;
     let temp = [...wallList];
 
-    if (temp.length !== 0) {
-      setNodeList((prevNodeList) => {
-        let count = 0;
-        while (temp.length > 0 && count < state.step) {
-          const sIndex = temp.pop();
-          prevNodeList[sIndex] = clearNode(
-            prevNodeList[sIndex],
-            inverse ? EMPTY : WALL
-          );
-          count += 1;
-        }
+    if (state.maze_gen_status) {
+      if (temp.length !== 0) {
+        setNodeList((prevNodeList) => {
+          let count = 0;
+          while (temp.length > 0 && count < state.step) {
+            const sIndex = temp.pop();
+            prevNodeList[sIndex] = clearNode(
+              prevNodeList[sIndex],
+              inverse ? EMPTY : WALL
+            );
+            count += 1;
+          }
 
-        return prevNodeList;
-      });
+          return prevNodeList;
+        });
 
-      setWallList(temp);
+        setWallList(temp);
+      } else {
+        dispatch({ type: SET_MAZE_GEN_STATUS, payload: false });
+        setWallList([]);
+      }
     }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [wallList]);
+  }, [wallList, state.maze_gen_status]);
 
   const handleClick = (i) => (e) => {
     let nextType, nextState;
