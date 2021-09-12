@@ -15,7 +15,7 @@ import {
 import { getXYFromIndex } from "../algorithm/helper";
 
 const DivBox = styled.div`
-  background: transparent;
+  background: white;
   border-radius: 0px;
   border: 0.5px solid lightblue;
   height: 30px;

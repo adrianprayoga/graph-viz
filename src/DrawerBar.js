@@ -13,13 +13,24 @@ import "@fontsource/roboto";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
 import SettingsIcon from "@material-ui/icons/Settings";
+import BlurOnIcon from "@material-ui/icons/BlurOn";
 import Box from "./components/Box";
 import { StateContext, DispatchContext } from "./App";
-import { DRAWER_WIDTH, START, TARGET, TRAFFIC, WALL } from "./constants";
+import {
+  DRAWER_WIDTH,
+  SOLUTION,
+  START,
+  TARGET,
+  TRAFFIC,
+  VISITED_CURR,
+  VISITED_PREV,
+  WALL,
+} from "./constants";
 import AlgoButton from "./components/AlgoButton";
 import AlgoSpeed from "./components/AlgoSpeed";
 import RandomizeMazeButton from "./components/RandomizeMazeButton";
 import { InfoOutlined, InfoRounded } from "@material-ui/icons";
+import clsx from "clsx";
 
 const useStyles = makeStyles((theme) => ({
   appBar: {
@@ -32,9 +43,20 @@ const useStyles = makeStyles((theme) => ({
   },
   drawerPaper: {
     width: DRAWER_WIDTH,
+    background: "#EFEFEF",
   },
   // necessary for content to be below app bar
   toolbar: theme.mixins.toolbar,
+  mainHeader: {
+    background: "#393939",
+  },
+  headerLogo: {
+    margin: "20px",
+    display: "flex",
+    color: "#EFEFEF",
+    justifyContent: "center",
+  },
+  iconMargin: { alignSelf: "center", marginRight: "5px" },
   content: {
     flexGrow: 1,
     backgroundColor: theme.palette.background.default,
@@ -46,8 +68,6 @@ const useStyles = makeStyles((theme) => ({
 
 const DrawerBar = (props) => {
   const classes = useStyles();
-  const dispatch = useContext(DispatchContext);
-  const state = useContext(StateContext);
 
   const infoList = [
     { primaryText: "Empty Node" },
@@ -73,6 +93,18 @@ const DrawerBar = (props) => {
       ),
       type: TRAFFIC,
     },
+    {
+      primaryText: "Currently Node",
+      state: VISITED_CURR,
+    },
+    {
+      primaryText: "Visited Node",
+      state: VISITED_PREV,
+    },
+    {
+      primaryText: "Solution",
+      state: SOLUTION,
+    },
     { primaryText: "Start Node", type: START },
     { primaryText: "Target Node", type: TARGET },
   ];
@@ -88,9 +120,17 @@ const DrawerBar = (props) => {
         }}
         anchor="right"
       >
-        <div className={classes.toolbar} />
+        <div className={classes.mainHeader}>
+          <Typography variant={"h4"} className={classes.headerLogo}>
+            <BlurOnIcon fontSize="inherit" className={classes.iconMargin} />
+            <b>Maze & Paths</b>
+          </Typography>
+        </div>
 
         <List>
+          <ListItem>
+            <RandomizeMazeButton onButtonClick={props.handleAddMaze} />
+          </ListItem>
           <ListItem>
             <AlgoButton onButtonClick={props.onRunAlgoClick} />
           </ListItem>
@@ -122,9 +162,6 @@ const DrawerBar = (props) => {
               {`Clear Board`}
             </Button>
           </ListItem>
-          <ListItem>
-            <RandomizeMazeButton onButtonClick={props.handleAddMaze} />
-          </ListItem>
 
           <ListItem>
             <Button
@@ -149,7 +186,12 @@ const DrawerBar = (props) => {
             {infoList.map((item) => (
               <ListItem>
                 <ListItemText primary={item.primaryText} />
-                <Box small disabled={true} type={item.type} />
+                <Box
+                  small
+                  disabled={true}
+                  type={item.type}
+                  state={item.state}
+                />
               </ListItem>
             ))}
           </List>
