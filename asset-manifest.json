@@ -1,0 +1,26 @@
+{
+  "files": {
+    "main.css": "/graph-viz/static/css/main.d87cbb72.chunk.css",
+    "main.js": "/graph-viz/static/js/main.24fc2ec3.chunk.js",
+    "main.js.map": "/graph-viz/static/js/main.24fc2ec3.chunk.js.map",
+    "runtime-main.js": "/graph-viz/static/js/runtime-main.e63c974e.js",
+    "runtime-main.js.map": "/graph-viz/static/js/runtime-main.e63c974e.js.map",
+    "static/css/2.3f2b6a0d.chunk.css": "/graph-viz/static/css/2.3f2b6a0d.chunk.css",
+    "static/js/2.5aade44c.chunk.js": "/graph-viz/static/js/2.5aade44c.chunk.js",
+    "static/js/2.5aade44c.chunk.js.map": "/graph-viz/static/js/2.5aade44c.chunk.js.map",
+    "static/js/3.0182cd36.chunk.js": "/graph-viz/static/js/3.0182cd36.chunk.js",
+    "static/js/3.0182cd36.chunk.js.map": "/graph-viz/static/js/3.0182cd36.chunk.js.map",
+    "index.html": "/graph-viz/index.html",
+    "static/css/2.3f2b6a0d.chunk.css.map": "/graph-viz/static/css/2.3f2b6a0d.chunk.css.map",
+    "static/css/main.d87cbb72.chunk.css.map": "/graph-viz/static/css/main.d87cbb72.chunk.css.map",
+    "static/js/2.5aade44c.chunk.js.LICENSE.txt": "/graph-viz/static/js/2.5aade44c.chunk.js.LICENSE.txt",
+    "static/media/index.css": "/graph-viz/static/media/roboto-vietnamese-400-normal.c0bec65d.woff2"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.e63c974e.js",
+    "static/css/2.3f2b6a0d.chunk.css",
+    "static/js/2.5aade44c.chunk.js",
+    "static/css/main.d87cbb72.chunk.css",
+    "static/js/main.24fc2ec3.chunk.js"
+  ]
+}
