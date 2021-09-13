@@ -45,7 +45,7 @@ import {
   generateRandomMaze,
 } from "./algorithm/mazeGeneration";
 
-const TIME_INTERVAL = 1; // 1 mili
+const TIME_INTERVAL = 100; // 1 mili
 const START_NODE = getIndexFromXY({
   x: Math.floor(NUM_COL / 2 - 8),
   y: Math.floor(NUM_ROW / 2),
@@ -241,7 +241,10 @@ const App = () => {
     if (temp.length !== 0) {
       setNodeList((prevNodeList) => {
         let count = 0;
-        while (temp.length > 0 && count < Math.min(state.step / 2, 5)) {
+        while (
+          temp.length > 0 &&
+          count < Math.max(Math.floor(state.step / 4), 1)
+        ) {
           const sIndex = temp.pop();
           prevNodeList[sIndex] = {
             ...prevNodeList[sIndex],
@@ -255,7 +258,7 @@ const App = () => {
 
       setSolutionList(temp);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [solutionList]);
 
   useEffect(() => {

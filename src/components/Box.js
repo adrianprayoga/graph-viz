@@ -73,7 +73,7 @@ const DivBox = styled.div`
       `;
     } else if (state === VISITED_CURR) {
       return css`
-        background: steelblue;
+        background: darkred;
       `;
     } else if (state === SOLUTION) {
       return css`
