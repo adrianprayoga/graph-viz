@@ -124,7 +124,6 @@ export const generateBinaryMaze = (startNode, targetNode) => {
 export const generateKruskalMaze = (startNode, targetNode) => {
   let { nodes: initialNodes, walls } = generateUnconnectedNodes();
   let path = [...initialNodes];
-  let edges = new Set();
   let quickUnionFind = new QuickUnionFind(initialNodes);
   let wallList = [...walls];
   shuffle(wallList);

@@ -11,10 +11,8 @@ import {
   START,
   TARGET,
   WALL,
-  VW,
   DJIKSTRA,
   NOT_VISITED,
-  DRAWER_WIDTH,
   SOLUTION,
   DFS,
   NUM_BOX,
@@ -62,6 +60,7 @@ const MazeRoot = styled.div`
   grid-template-columns: repeat(${NUM_COL}, 1fr);
   gap: 0 0;
   width: 10px;
+  align-content: center;
 `;
 
 export const StateContext = React.createContext();
@@ -73,6 +72,7 @@ const App = () => {
   );
   const [startNode, setStartNode] = useState(START_NODE);
   const [targetNode, setTargetNode] = useState(TARGET_NODE);
+  const [dragging, setDragging] = useState({ val: false });
   const [intervalId, setIntervalId] = useState(0);
   const [solutionList, setSolutionList] = useState([]);
   const [wallList, setWallList] = useState([]);
@@ -140,7 +140,6 @@ const App = () => {
     let lastVisited = [];
     let deque = [startNode];
 
-    // marked.add(startNode);
     pq.push(startNode, 0);
 
     if (intervalId) {
@@ -256,6 +255,7 @@ const App = () => {
 
       setSolutionList(temp);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [solutionList]);
 
   useEffect(() => {
@@ -292,19 +292,36 @@ const App = () => {
   }, [wallList, state.maze_gen_status]);
 
   const handleClick = (i) => (e) => {
-    let nextType, nextState;
     const currentType = nodeList[i].type;
+    let nextType = currentType;
+    let nextState = nodeList[i].state;
 
-    if (
-      currentType !== TARGET &&
-      currentType !== START &&
-      currentType !== WALL
-    ) {
-      nextType = WALL;
-      nextState = NOT_VISITED;
-    } else if (currentType === WALL) {
-      nextType = EMPTY;
-      nextState = NOT_VISITED;
+    if (!dragging.val) {
+      if (
+        currentType !== TARGET &&
+        currentType !== START &&
+        currentType !== WALL
+      ) {
+        nextType = WALL;
+        nextState = NOT_VISITED;
+      } else if (currentType === WALL) {
+        nextType = EMPTY;
+        nextState = NOT_VISITED;
+      } else if (currentType === TARGET || currentType === START) {
+        setDragging({ val: true, type: currentType });
+      }
+    } else {
+      if (currentType !== WALL) {
+        nextState = NOT_VISITED;
+        nextType = dragging.type;
+        if (dragging.type === TARGET) {
+          setTargetNode(i);
+        } else if (dragging.type === START) {
+          setStartNode(i);
+        }
+      }
+
+      setDragging({ val: false });
     }
 
     nextType &&
@@ -318,21 +335,50 @@ const App = () => {
       });
   };
 
+  const updateDraggedNode = (node) => {
+    if (dragging.val && nodeList[node].type !== WALL) {
+      const updateNode = dragging.type === START ? startNode : targetNode;
+      setNodeList({
+        ...nodeList,
+        [node]: {
+          ...nodeList[node],
+          type: dragging.type,
+          state: NOT_VISITED,
+        },
+        [updateNode]: {
+          ...nodeList[updateNode],
+          type: EMPTY,
+          state: NOT_VISITED,
+        },
+      });
+
+      if (dragging.type === TARGET) {
+        setTargetNode(node);
+      } else if (dragging.type === START) {
+        setStartNode(node);
+      }
+    }
+  };
+
   return (
     <DispatchContext.Provider value={dispatch}>
       <StateContext.Provider value={state}>
         <div>
-          <MazeRoot>
-            {boxList.map((index) => (
-              <Box
-                key={index}
-                node={index}
-                type={nodeList[index]?.type}
-                state={nodeList[index]?.state}
-                handleClick={handleClick(index)}
-              />
-            ))}
-          </MazeRoot>
+          <div style={{ display: "flex" }}>
+            <MazeRoot>
+              {boxList.map((index) => (
+                <Box
+                  key={index}
+                  node={index}
+                  type={nodeList[index]?.type}
+                  state={nodeList[index]?.state}
+                  handleClick={handleClick(index)}
+                  updateDraggedNode={updateDraggedNode}
+                />
+              ))}
+            </MazeRoot>
+          </div>
+
           <DrawerBar
             onRunAlgoClick={runAlgorithm}
             handleClearNodes={handleClearNodes}

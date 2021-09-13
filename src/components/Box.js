@@ -12,7 +12,6 @@ import {
   WALL,
   TRAFFIC,
 } from "../constants";
-import { getXYFromIndex } from "../algorithm/helper";
 
 const DivBox = styled.div`
   background: white;
@@ -33,6 +32,7 @@ const DivBox = styled.div`
         width: 20px;
         font-size: 25px;
         border: transparent;
+        background: transparent;
       `;
     } else if (small) {
       return css`
@@ -91,7 +91,7 @@ const Box = ({
   type,
   state,
   handleClick,
-  handleDrag,
+  updateDraggedNode,
 }) => {
   return (
     <DivBox
@@ -99,8 +99,7 @@ const Box = ({
       state={state}
       small={small}
       onClick={(e) => !disabled && handleClick(e)}
-      // onMouseEnter={() => console.log(node, getXYFromIndex(node))}
-      draggable={!disabled && (type === TARGET || type === START)}
+      onMouseEnter={() => !disabled && updateDraggedNode(node)}
     >
       {type === START && (
         <PlayCircleFilledIcon

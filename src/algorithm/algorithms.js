@@ -5,11 +5,9 @@ import {
   DJIKSTRA,
   NUM_COL,
   NUM_ROW,
-  SOLUTION,
   TRAFFIC,
   VISITED_CURR,
   VISITED_PREV,
-  WALL,
 } from "../constants";
 import { getNeighbor, getXYFromIndex } from "./helper";
 
@@ -205,19 +203,6 @@ const getDistance = (distMap, index) => {
   return distMap[index] === undefined ? MAX_DIST : distMap[index];
 };
 
-const getSolution = (nodes, pathMap, startId, targetId) => {
-  let tmpNodes = { ...nodes };
-  let tmp = pathMap[targetId];
-  while (tmp && tmp !== startId) {
-    tmpNodes[tmp] = { ...tmpNodes[tmp], state: SOLUTION };
-    tmp = pathMap[tmp];
-  }
-  tmpNodes[startId] = { ...tmpNodes[startId], state: SOLUTION };
-  tmpNodes[targetId] = { ...tmpNodes[targetId], state: SOLUTION };
-
-  return tmpNodes;
-};
-
 const getSolutionList = (pathMap, startId, targetId) => {
   let ls = [targetId];
   let tmp = pathMap[targetId];
@@ -241,3 +226,18 @@ const markAsVisitedPrev = (lastVisited, nodes) => {
 
   return tempNodes;
 };
+
+/*
+const getSolution = (nodes, pathMap, startId, targetId) => {
+  let tmpNodes = { ...nodes };
+  let tmp = pathMap[targetId];
+  while (tmp && tmp !== startId) {
+    tmpNodes[tmp] = { ...tmpNodes[tmp], state: SOLUTION };
+    tmp = pathMap[tmp];
+  }
+  tmpNodes[startId] = { ...tmpNodes[startId], state: SOLUTION };
+  tmpNodes[targetId] = { ...tmpNodes[targetId], state: SOLUTION };
+
+  return tmpNodes;
+};
+*/

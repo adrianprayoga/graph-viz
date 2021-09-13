@@ -1,5 +1,4 @@
 import {
-  RUNNING,
   SET_ALGO,
   SET_ALGO_STATUS,
   SET_MAZE_GEN,

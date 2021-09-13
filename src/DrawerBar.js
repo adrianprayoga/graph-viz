@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React from "react";
 import {
   Drawer,
   makeStyles,
@@ -15,7 +15,6 @@ import ListItemText from "@material-ui/core/ListItemText";
 import SettingsIcon from "@material-ui/icons/Settings";
 import BlurOnIcon from "@material-ui/icons/BlurOn";
 import Box from "./components/Box";
-import { StateContext, DispatchContext } from "./App";
 import {
   DRAWER_WIDTH,
   SOLUTION,
@@ -30,7 +29,6 @@ import AlgoButton from "./components/AlgoButton";
 import AlgoSpeed from "./components/AlgoSpeed";
 import RandomizeMazeButton from "./components/RandomizeMazeButton";
 import { InfoOutlined, InfoRounded } from "@material-ui/icons";
-import clsx from "clsx";
 
 const useStyles = makeStyles((theme) => ({
   appBar: {
@@ -69,45 +67,20 @@ const useStyles = makeStyles((theme) => ({
 const DrawerBar = (props) => {
   const classes = useStyles();
 
-  const infoList = [
-    { primaryText: "Empty Node" },
-    {
-      primaryText: (
-        <div className={classes.listItemText}>
-          {"Wall Node"}
-          <Tooltip title="Wall Node is impenetrable" arrow>
-            <InfoOutlined fontSize="inherit" className={classes.infoIcon} />
-          </Tooltip>
-        </div>
-      ),
-      type: WALL,
-    },
-    {
-      primaryText: (
-        <div className={classes.listItemText}>
-          {"Traffic Node"}
-          <Tooltip title="Traffic Node costs 3x more to traverse" arrow>
-            <InfoOutlined fontSize="inherit" className={classes.infoIcon} />
-          </Tooltip>
-        </div>
-      ),
-      type: TRAFFIC,
-    },
-    {
-      primaryText: "Currently Node",
-      state: VISITED_CURR,
-    },
-    {
-      primaryText: "Visited Node",
-      state: VISITED_PREV,
-    },
-    {
-      primaryText: "Solution",
-      state: SOLUTION,
-    },
-    { primaryText: "Start Node", type: START },
-    { primaryText: "Target Node", type: TARGET },
-  ];
+  const infoList = informations.map((info) => ({
+    type: info.type,
+    state: info.state,
+    primaryText: info.tooltip ? (
+      <div className={classes.listItemText}>
+        {info.primaryText}
+        <Tooltip title={info.tooltip} arrow>
+          <InfoOutlined fontSize="inherit" className={classes.infoIcon} />
+        </Tooltip>
+      </div>
+    ) : (
+      info.primaryText
+    ),
+  }));
 
   return (
     <>
@@ -154,7 +127,7 @@ const DrawerBar = (props) => {
         <List>
           <ListItem>
             <Button
-              variant="contained"
+              variant="outlined"
               onClick={props.handleClearNodes}
               color="primary"
               fullWidth
@@ -165,7 +138,7 @@ const DrawerBar = (props) => {
 
           <ListItem>
             <Button
-              variant="contained"
+              variant="outlined"
               onClick={props.handleAddRandomTrafficNodes}
               color="primary"
               fullWidth
@@ -202,3 +175,40 @@ const DrawerBar = (props) => {
 };
 
 export default DrawerBar;
+
+const informations = [
+  { primaryText: "Empty Node" },
+  {
+    primaryText: "Wall Node",
+    tooltip:
+      "Wall Node is impenetrable. Click on any empty node to add a wall.",
+    type: WALL,
+  },
+  {
+    primaryText: "Traffic Node",
+    tooltip: "Traffic Node costs 3x more to traverse",
+    type: TRAFFIC,
+  },
+  {
+    primaryText: "Start Node",
+    tooltip: "Click the start node icon to move it around",
+    type: START,
+  },
+  {
+    primaryText: "Target Node",
+    tooltip: "Click the target node icon to move it around",
+    type: TARGET,
+  },
+  {
+    primaryText: "Currently Node",
+    state: VISITED_CURR,
+  },
+  {
+    primaryText: "Visited Node",
+    state: VISITED_PREV,
+  },
+  {
+    primaryText: "Solution",
+    state: SOLUTION,
+  },
+];
